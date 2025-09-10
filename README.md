@@ -16,6 +16,13 @@
 
 - ⚡ Fun fact **I once collected survey data in the remote region of Aysén, Chilean Patagonia**
 
+## 📂 Proyectos
+
+### 1. [Análisis de Salud Mental y Situación Laboral en Juventudes Chilenas](analisis-enjuv-chile/README.md)
+*   **Descripción:** Análisis de la relación entre empleo y salud mental usando datos de la 10ma Encuesta Nacional de Juventudes (ENJUV).
+*   **Tecnologías:** R, Quarto, Tidyverse (dplyr, ggplot2).
+*   **Hallazgo Clave:** Se encontró una paradójica correlación donde jóvenes desocupados perciben un mayor acceso a la atención en salud mental que sus pares empleados, apuntando a la precariedad laboral como un factor crítico.
+
 <h3 align="left">Connect with me:</h3>
 <p align="left">
 <a href="https://linkedin.com/in/pablo-araya-gajardo" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="pablo-araya-gajardo" height="30" width="40" /></a>
