@@ -1,0 +1,436 @@
+---
+title: "Análisis de la Salud Mental y su Relación con la Situación Laboral en Juventudes"
+author: "Pablo Araya Gajardo"
+date: 08-09-2025
+abstract: |
+  El presente estudio analiza la relación entre la situación laboral y la salud mental en jóvenes de Chile, con el objetivo de explorar, desde una perspectiva crítica, las diferencias en malestar psicológico y acceso percibido a la atención. Utilizando los datos de la 10ma Encuesta Nacional de Juventudes (ENJUV), se aplicó una metodología cuantitativa en R y RStudio. Se construyeron dos indicadores principales: un Índice de Malestar Psicológico y un Índice de Acceso a Atención. El análisis incluyó estadísticas descriptivas, pruebas de hipótesis (t-Student) y diversas visualizaciones de datos para comparar a los jóvenes ocupados versus los desocupados o inactivos. Los resultados confirman que el grupo de jóvenes sin ocupación reporta niveles de malestar psicológico significativamente más altos. Sin embargo, este mismo grupo percibe un acceso significativamente mayor a la atención en salud mental que sus pares empleados. Adicionalmente, se encontró una correlación positiva donde, a mayor malestar, mayor es el acceso percibido, refutando una posible "doble vulnerabilidad". Se concluye que, si bien la falta de empleo es un factor de riesgo para el bienestar psicológico, la empleabilidad por sí sola no garantiza ni el acceso ni la percepción de seguridad para afrontar los costos de la salud mental. Se postula que la precariedad de los trabajos juveniles podría explicar esta brecha, subrayando la necesidad de que las políticas públicas se enfoquen no solo en la creación de empleo, sino también en la calidad y seguridad de este para asegurar un desarrollo integral de las juventudes.
+keywords:
+  - Juventud
+  - Salud Mental
+  - Empleo
+  - Precariedad Laboral
+  - ENJUV
+  - Chile
+
+lang: es
+language:
+  crossrefs:
+    fig-title: "Gráfico"
+    chapter-title: "Capítulo"
+format:
+  html:
+    echo: False
+    theme: litera
+    toc: true
+    toc-depth: 3
+    toc-title: "Índice de Contenidos"
+    number-sections: true
+    code-fold: true
+    code-tools: true
+  pdf:
+    documentclass: report
+    papersize: a4
+    margin-left: 2.5cm
+    margin-right: 2.5cm
+    toc: true
+    toc-title: "Índice de Contenidos"
+    number-sections: true
+    latex-engine: xelatex
+    include-in-header:
+      - text: |
+          \usepackage{float}
+          \usepackage{caption}
+          \renewcommand{\abstractname}{Resumen}
+          \renewcommand{\chaptername}{Capítulo}
+---
+
+## Objetivo del análisis
+
+El objetivo de este trabajo es analizar la relación entre la situación laboral (empleo y desempleo) y la salud mental en las juventudes de Chile, utilizando los datos de la 10ma Encuesta Nacional de Juventudes (ENJUV) 2022. Se busca explorar si existen diferencias significativas en los indicadores de bienestar psicológico entre jóvenes empleados y desempleados, y analizar estos resultados desde una perspectiva crítica que considere las condiciones del mercado laboral juvenil en el país.
+
+## Metodología de análisis
+
+El presente estudio corresponde a un análisis cuantitativo, descriptivo y correlacional, implementado a través del software R (versión 4.5.0) y el entorno de desarrollo RStudio. Se utilizó principalmente el conjunto de librerías del tidyverse, con especial énfasis en dplyr para la manipulación de datos y ggplot2 para la visualización.
+
+**Fuente de Datos y Muestra**
+
+La fuente de datos principal es la base de la 10ma Encuesta Nacional de Juventudes (ENJUV), realizada por el Instituto Nacional de la Juventud (INJUV) de Chile en el año 2022. Esta encuesta es representativa a nivel nacional y regional para la población de entre 15 y 29 años.
+
+**Operacionalización y Construcción de Variables**
+
+Para abordar los objetivos del estudio, se seleccionaron y construyeron las siguientes variables clave a partir de la base de datos original:
+
+**1. Variable Independiente: Situación Laboral.** Se creó una variable categórica y dicotómica a partir de las preguntas P36, P37 y P38, que indagan sobre el trabajo remunerado. Se definió como "Ocupado/a" a todo joven que respondió "1. Sí" a cualquiera de estas tres preguntas. Todos los demás casos fueron agrupados en la categoría "Desocupado/a o Inactivo/a".
+
+**2. Índice de Malestar Psicológico.** Se construyó un índice sumatorio para medir sintomatología ansiosa-depresiva. Se utilizaron las variables P102_1 a P102_7, que consultan la frecuencia de sentimientos como nerviosismo, preocupación, desánimo, anhedonia, problemas de sueño, soledad e ideación suicida. Las respuestas originales en formato de texto ("Para nada", "Varios días", "Más de la mitad de los días" y "Casi todos los días") fueron recodificadas a una escala numérica del 1 al 4. El Índice de Malestar Psicológico corresponde a la suma de estos puntajes, generando un rango teórico de 7 (mínimo malestar) a 28 (máximo malestar).
+
+**3. Índice de Acceso a Atención.** Para medir la percepción sobre la posibilidad de costear servicios de salud mental, se creó un segundo índice sumatorio. Se utilizaron las variables P105_1, P105_2 y P105_3, que evalúan la posibilidad de costear consultas, medicamentos y exámenes. Sus respuestas textuales ("Nada posible", "Poco posible", "Algo posible" y "Muy posible") también fueron recodificadas a una escala numérica del 1 al 4. El Índice de Acceso a Atención Psicológica es la suma de estos valores, con un rango teórico de 3 (mínimo acceso percibido) a 12 (máximo acceso percibido).
+
+ 
+
+**Técnicas de Análisis**
+
+El flujo de trabajo analítico siguió los siguientes pasos:
+
+-   Análisis Descriptivo: Se calcularon estadísticas de tendencia central (media, mediana) y de dispersión (desviación estándar) para los dos índices construidos, agrupando los resultados por la variable de Situación Laboral para realizar una primera comparación de los grupos.
+
+-   Visualización de Hallazgos: Se empleó la librería ggplot2 para generar tres tipos de visualizaciones con el fin de explorar las relaciones y distribuciones:
+
+    -   Gráficos de densidad para comparar la forma completa de la distribución de ambos índices entre los dos grupos.
+
+    -   Diagramas de cajas (Boxplots) para obtener un resumen visual de las medianas, rangos intercuartílicos y la dispersión de los datos.
+
+    -   Diagrama de dispersión (Scatter plot) con líneas de tendencia por grupo, para investigar la correlación entre el malestar psicológico y el acceso percibido.
+
+-   Análisis Inferencial: Se aplicaron dos tipos de pruebas de hipótesis para evaluar estadísticamente los hallazgos. Primero, para determinar si las diferencias observadas en las medias de los índices entre los grupos "Ocupado/a" y "Desocupado/a o Inactivo/a" eran significativas, se aplicó la prueba t de Student para muestras independientes, utilizando la corrección de Welch que R implementa por defecto. Segundo, para cuantificar la fuerza y dirección de la relación entre las dos variables numéricas (Índice de Malestar e Índice de Acceso), se realizó una prueba de correlación de Pearson. Para todas las pruebas se utilizó un nivel de significancia (alfa) de 0.05.
+
+## Principales hallazgos
+
+```{r}
+#| label: setup
+#| include: false
+
+# Carga de librerías a utilizar
+
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(readxl)
+library(ggplot2)
+library(kableExtra)
+
+# Se carga la base de datos de la 10ma Encuesta Nacional de Juventudes y se crea un nuevo dataframe (`enjuv_procesada`) con las variables seleccionadas y transformadas.
+
+enjuv <- read_excel("data/ENJUV_10.xlsx")
+
+enjuv_procesada <- enjuv %>%
+  
+# Transformación numérica de variables de resultado para construir indices de malestar psicológico y de acceso a atención psicológica (consultas, tratamientos y exámenes)
+  
+      mutate(across(P102_1:P102_7, ~case_when(
+    . == "Para nada"                   ~ 1,
+    . == "Varios dias"                 ~ 2,
+    . == "Más de la mitad de los días" ~ 3,
+    . == "Casi todos los días"         ~ 4,
+    TRUE                               ~ NA_real_ 
+  )),
+  across(P105_1:P105_3, ~case_when(
+    . == "Nada posible" ~ 1,
+    . == "Poco posible" ~ 2,
+    . == "Algo posible" ~ 3,
+    . == "Muy posible"  ~ 4,
+    TRUE                ~ NA_real_ 
+  ))) %>%
+  
+# Creación de Índice de Malestar Psicológico y del Índice de Acceso a Atención Psicológica
+# El primer índice se crea sumando las puntuaciones de las 7 preguntas P102 y el segundo se crea sumando las de las 3 preguntas P105.
+# Un puntaje más alto en este índice significará un mayor malestar psicológico o mayor accesibilidad a atención psicológica.
+# El rango teórico del primer índice irá de 7 (1*7, "Para nada" en todo) a 28 (4*7, "Casi todos los días" en todo). El del segundo índice irá de 3 (1*3, "Nada posible" en todo) a 12 (4*3, "Muy posible" en todo)
+  
+  mutate(
+    indice_malestar = rowSums(select(., P102_1:P102_7), na.rm = TRUE),
+    indice_atencion = rowSums(select(., P105_1:P105_3), na.rm = TRUE),
+
+    # Creación de la variable "Situación Laboral"
+    situacion_laboral = if_else(
+      P36 == "1. Sí" | P37 == "1. Sí" | P38 == "1. Sí",
+      "Ocupado/a",
+      "Desocupado/a o Inactivo/a",
+      missing = "Desocupado/a o Inactivo/a"
+    )
+  ) %>%
+  mutate(situacion_laboral = as.factor(situacion_laboral))
+
+```
+
+### Análisis del Índice de Malestar Psicológico e Índice de Acceso a Atención
+
+```{r}
+#| label: tabla-descriptiva
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: "Estadísticas Descriptivas de los Índices por Situación Laboral"
+#| tbl-pos: "H"
+#| results: "asis"
+
+# Creación de dataframe final solo con las columnas de interés y sin datos faltantes (na)
+
+datos_analisis <- enjuv_procesada %>%
+  select(indice_malestar, indice_atencion, situacion_laboral)
+
+# Generación de tablas resumen
+tabla_descriptiva <- datos_analisis %>%
+  group_by(situacion_laboral) %>%
+  summarise(
+    N = n(),
+    Media_Malestar = mean(indice_malestar, na.rm = TRUE),
+    Mediana_Malestar = median(indice_malestar, na.rm = TRUE),
+    DE_Malestar = sd(indice_malestar, na.rm = TRUE),
+
+    Media_Acceso = mean(indice_atencion, na.rm = TRUE),
+    Mediana_Acceso = median(indice_atencion, na.rm = TRUE),
+    DE_Acceso = sd(indice_atencion, na.rm = TRUE)
+)
+
+kable(tabla_descriptiva,
+      digits = 1,
+      col.names = c("Situación Laboral", "N", "Media Malestar", "Mediana Malestar", "DE Malestar", "Media Acceso", "Mediana Acceso", "DE Acceso"),
+      align = "lcccccc") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                font_size = 9) %>%
+  column_spec(1, width = "6em")
+```
+
+La tabla 3.1 revela dos hallazgos centrales. Primero, en relación con el malestar psicológico, se observa que el **promedio de malestar es levemente superior en el grupo de jóvenes desocupados o inactivos** (Media = 12.1) frente a los ocupados (Media = 11.5). Sin embargo, la mediana de malestar es idéntica para ambos grupos (Mediana = 11), lo que sugiere que la diferencia en el promedio podría ser impulsada por un subconjunto de jóvenes desocupados con niveles de malestar particularmente elevados, más que por una tendencia generalizada.
+
+El segundo hallazgo, se refiere al acceso a la atención. Contrario a lo que se podría esperar, el **grupo de desocupados o inactivos reporta una percepción de acceso a servicios de salud mental ligeramente superior** (Media = 6.9, Mediana = 7) que el grupo de jóvenes ocupados (Media = 6.5, Mediana = 6).
+
+### ¿Cómo se distribuye el malestar psicológico?
+
+```{r}
+#| label: fig-densidad-malestar
+#| echo: false
+#| fig-cap: "Distribución del Malestar Psicológico en Jóvenes según Situación Laboral."
+#| tbl-pos: "H"
+
+densidad_malestar <- ggplot(datos_analisis, aes(x = indice_malestar, fill = situacion_laboral)) +
+  geom_density(alpha = 0.6) +
+  labs(
+    title = "Distribución del Malestar Psicológico en Jóvenes",
+    subtitle = "Según Situación Laborl (Ocupado/a vs. Desocupado/a o Inactivo/a)",
+    x = "Índice de Malestar Psicológico",
+    y = "Densidad",
+    fill = "Situación Laboral"
+  ) +
+  theme_minimal()
+
+print(densidad_malestar)
+
+ggsave("graficos/densidad_malestar.png", plot = densidad_malestar, bg = "white", width = 8, height = 5)
+```
+
+El gráfico de densidad (Ver Gráfico 3.1) revela que la distribución es bimodal, con un pico agudo en la zona de bajo malestar (puntaje = 8) y una meseta en la zona de malestar medio-alto.
+
+Al comparar los grupos se puede observar que en los niveles bajos y medios de malestar las distribuciones para jóvenes ocupados y desocupados/inactivos son notablemente similares. También se observa una diferencia clave en la cola derecha de la distribución. A partir de un puntaje de 15, el grupo de desocupados/inactivos (en rojo) presenta una densidad consistentemente mayor, lo que indica que una proporción más alta de este grupo se concentra en los niveles más elevados de malestar psicológico.
+
+```{r}
+#| label: fig-boxplot-malestar
+#| echo: false
+#| fig-cap: "Comparación del Malestar Psicológico por Situación Laboral."
+
+# Comparación del malestar con un Boxplot
+
+boxplot_malestar <- ggplot(datos_analisis, aes(x = situacion_laboral, y = indice_malestar, fill = situacion_laboral)) +
+  geom_boxplot() +
+  labs(
+    title = "Comparación del Malestar Psicológico por Situación Laboral",
+    x = "Situación Laboral",
+    y = "Índice de Malestar Psicológico",
+    fill = "Situación Laboral"
+  ) +
+  theme_minimal()
+
+print(boxplot_malestar)
+
+ggsave("graficos/boxplot_malestar.png", plot = boxplot_malestar, bg = "white", width = 8, height = 5)
+```
+
+A través del diagrama de cajas (Ver Gráfico 3.2), que compara el Índice de Malestar Psicológico entre ambos grupos, se visualiza la **identidad de las medianas**. Tanto para el grupo de jóvenes ocupados como para el de desocupados o inactivos, la mediana está en el valor 11. Esto indica que el 50% central de la muestra en ambos grupos experimenta niveles de malestar muy similares.
+
+El gráfico de cajas, por lo tanto, confirma que la diferencia proviene de una mayor concentración de casos con alto malestar en la cola de la distribución del grupo de desocupados.
+
+### ¿Cómo se distribuye la percepción al acceso a la atencion psicológica?
+
+```{r}
+#| label: fig-densidad-atencion
+#| echo: false
+#| fig-cap: "Distribución del Acceso a Atención Psicológica en Jóvenes según Situación Laboral."
+
+# ¿Cómo se distribuye la percepción al acceso a la atención psicológica?
+densidad_atencion <- ggplot(datos_analisis, aes(x = indice_atencion, fill = situacion_laboral)) +
+  geom_density(alpha = 0.6) +
+  labs(
+    title = "Distribución del Acceso a Atención Psicológica",
+    subtitle = "Según Situación Laboral (Ocupado/a vs. Desocupado/a o Inactivo/a)",
+    x = "Índice de Acceso a Atencion Psicológica",
+    y = "Densidad",
+    fill = "Situación Laboral"
+  ) +
+  theme_minimal()
+
+print(densidad_atencion)
+
+ggsave("graficos/densidad_atencion.png", plot = densidad_atencion, bg = "white", width = 8, height = 5)
+```
+
+El Gráfico 3.3 presenta la distribución del Índice de Acceso a Atención Psicológica. La distribución es marcadamente **multimodal** , con picos en los puntajes que corresponden a respuestas consistentes de "Nada posible" (3), "Poco posible" (6), "Algo posible" (9) y "Muy posible" (12).
+
+La comparación entre los grupos por situación laboral revela un patrón **inverso**. En los niveles bajos de acceso percibido (picos en 3 y 6), la densidad es ligeramente mayor para el grupo de jóvenes ocupados. Por el contrario, en los niveles altos de acceso (picos en 9 y 12), la densidad del grupo de desocupados o inactivos es visiblemente superior.
+
+```{r}
+#| label: fig-boxplot-atencion
+#| echo: false
+#| fig-cap: "Comparación del Acceso a Atención Psicológica por Situación Laboral."
+
+# ¿Existen diferencias en la percepción de acceso a la salud mental según la situación laboral?
+boxplot_atencion <- ggplot(datos_analisis, aes(x = situacion_laboral, y = indice_atencion, fill = situacion_laboral)) +
+  geom_boxplot() +
+  labs(
+    title = "Percepción de Acceso a Atención Psicológica",
+    subtitle = "Según Situación Laboral",
+    x = "Situación Laboral",
+    y = "Índice de Acceso (Mayor puntaje = más posible)",
+    fill = "Situación Laboral"
+  ) +
+  theme_minimal()
+
+print(boxplot_atencion)
+
+ggsave("graficos/boxplot_atencion.png", plot = boxplot_atencion, bg = "white", width = 8, height = 5)
+```
+
+El diagrama de cajas (Ver Gráfico 3.4) permite ver que la mediana del Índice de Acceso a Atención Psicológica es superior para el grupo de jóvenes desocupados o inactivos (Mediana = 7) en comparación con el grupo de jóvenes ocupados (Mediana = 6).
+
+Este resultado confirma que el joven típico sin una ocupación laboral percibe que costear la atención es más posible que su contraparte empleada. Si bien el rango de respuestas es similar para ambos grupos, la tendencia central está claramente desplazada.
+
+### ¿Cuál es la relación entre el malestar psicológico y el acceso percibido?
+
+```{r}
+#| label: fig-diagrama-indices
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Relación entre el malestar psicológico y el acceso percibido."
+
+# ¿Cuál es la relación entre el malestar psicológico y el acceso percibido?
+diagrama_indices <- ggplot(datos_analisis, aes(x = indice_malestar, y = indice_atencion, color = situacion_laboral)) +
+  geom_jitter(alpha = 0.4, width = 0.2, height = 0.2) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relación entre Malestar Psicológico y Acceso a Atención",
+    x = "Índice de Malestar Psicológico",
+    y = "Índice de Acceso Percibido",
+    color = "Situación Laboral"
+  ) +
+  theme_bw()
+
+print(diagrama_indices)
+
+ggsave("graficos/diagrama_indices.png", plot = diagrama_indices, bg = "white", width = 8, height = 5)
+```
+
+Finalmente, para explorar la interacción entre el malestar y el acceso, se generó un diagrama de dispersión con líneas de tendencia por grupo (Ver Gráfico 3.5). Este gráfico revela dos patrones significativos.
+
+Primero, se observa una correlación positiva entre el malestar psicológico y el acceso percibido para ambos grupos. Las líneas de tendencia ascendentes indican que los jóvenes que reportan un mayor malestar también tienden a reportar una mayor posibilidad de costear la atención.
+
+Segundo, el gráfico confirma que existe una brecha sistemática entre los grupos. Para cualquier nivel de malestar, la línea de tendencia del grupo de desocupados/inactivos se sitúa por encima de la del grupo de ocupados, reafirmando que su percepción de acceso es consistentemente superior.
+
+### Análisis Inferencial
+
+```{r}
+#| label: tabla-ttest
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: "Resultados de las Pruebas t de Student para la Diferencia de Medias.\nNota: gl = Grados de Libertad; IC = Intervalo de Confianza."
+
+# Realizar las pruebas t y guardar los resultados
+test_malestar <- t.test(indice_malestar ~ situacion_laboral, data = datos_analisis)
+test_atencion <- t.test(indice_atencion ~ situacion_laboral, data = datos_analisis)
+
+# Crear un dataframe con los resultados
+tabla_resultados_t <- data.frame(
+  Indice = c("Malestar Psicológico", "Acceso a Atención"),
+
+    # Combinamos el estadístico t y los grados de libertad (gl) en una sola columna
+  # sprintf() para formatear los números
+  t_stat_df = c(
+    sprintf("%.2f (%.2f)", test_malestar$statistic, test_malestar$parameter),
+    sprintf("%.2f (%.2f)", test_atencion$statistic, test_atencion$parameter)
+  ),
+  
+  # Formatear el valor p en notación científica
+  valor_p = c(
+    format(test_malestar$p.value, scientific = TRUE, digits = 3),
+    format(test_atencion$p.value, scientific = TRUE, digits = 3)
+  ),
+  
+  # Unificar intervalo de confianza en una sola columna [Lím. Inf, Lím. Sup]
+  ic_95 = c(
+    sprintf("[%.2f, %.2f]", test_malestar$conf.int[1], test_malestar$conf.int[2]),
+    sprintf("[%.2f, %.2f]", test_atencion$conf.int[1], test_atencion$conf.int[2])
+  )
+)
+
+# Definir nombres de las columnas para la tabla final
+nombres_columnas <- c(
+  "Índice Analizado",
+  "Estadístico t (gl)",
+  "Valor p",
+  "IC 95% para la Diferencia"
+)
+
+# Tabla final
+kable(tabla_resultados_t, col.names = nombres_columnas, align = "lccc", ) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F) %>%
+  column_spec(1, width = "15em")
+```
+
+Como se observa en la Tabla 3.2, los resultados de las pruebas t de Student confirman que las diferencias observadas entre los grupos "Ocupado/a" y "Desocupado/a o Inactivo/a" son estadísticamente significativas para ambos índices.
+
+Para el Índice de Malestar Psicológico, el valor p (p \< .001) nos permite rechazar la hipótesis nula, confirmando que los jóvenes sin ocupación laboral presentan, en promedio, un malestar mayor. De manera aún más marcada, la prueba para el Índice de Acceso a Atención también arroja un resultado altamente significativo (p \< .001), validando estadísticamente el hallazgo paradójico de que el grupo de desocupados/inactivos reporta una percepción de acceso superior.
+
+```{r}
+#| label: test-correlacion
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: "Prueba de Correlación de Pearson entre Malestar Psicológico y Acceso a Atención"
+#| tbl-pos: "H"
+
+test_correlacion <- cor.test(~ indice_malestar + indice_atencion, data = datos_analisis)
+
+tabla_cor <- data.frame(
+  variables = "Malestar Psicológico y Acceso a Atención",
+  coeficiente_r = test_correlacion$estimate[[1]],
+  grados_libertad = round(test_correlacion$parameter[[1]]),
+  valor_p = ifelse(test_correlacion$p.value < 0.001, "< .001", round(test_correlacion$p.value, 3))
+)
+
+nombres_de_columna <- c(
+  "Variables Analizadas",
+  "Coeficiente de Correlación (r)",
+  "Grados de Libertad (gl)",
+  "Valor p"
+)
+
+knitr::kable(
+  tabla_cor,
+  col.names = nombres_de_columna,
+  digits = 2,
+  align = "lccc"
+)
+```
+
+A su vez, para cuantificar la relación observada en el diagrama de dispersión entre el malestar psicológico y el acceso percibido, se realizó una prueba de correlación de Pearson.
+
+Los resultados revelan una correlación positiva, aunque moderada, que es estadísticamente muy significativa (cor = .31, p \< .001). Esto indica que a medida que aumenta el Índice de Malestar Psicológico, también tiende a aumentar el Índice de Acceso a Atención. El hallazgo respalda la hipótesis de que la necesidad de atención puede generar una mayor conciencia de las vías de acceso disponibles.
+
+## Conclusiones
+
+El presente análisis sobre la relación entre situación laboral y salud mental en las juventudes chilenas, basado en la 10ma ENJUV, revela un panorama complejo y lleno de matices. Si bien se confirma que el grupo "Desocupado/a" presentan mayores indices de malestar psicológico, los hallazgos en torno al acceso a la atención y la interacción entre variables pintan un cuadro que requiere una interpretación crítica.
+
+En primer lugar, el análisis corrobora que la falta de ocupación laboral está asociada a un mayor detrimento de la salud mental. Aunque la experiencia de malestar más común es similar para todos los jóvenes, la vulnerabilidad a sufrir niveles de angustia más severos es significativamente mayor en el grupo que no tiene una ocupación. Como demostró el análisis de distribución, es esta mayor concentración de casos en los extremos más agudos del malestar lo que impulsa la diferencia estadísticamente significativa entre las medias, confirmando que la inactividad o el desempleo representan un factor de riesgo para el bienestar psicológico.
+
+Sin embargo, el hallazgo más interesante surge al analizar la percepción de acceso a la atención. Contrario a lo que se podría esperar, tener un empleo no se traduce en una mejor percepción de acceso a los servicios de salud mental; de hecho, la tendencia es significativamente opuesta. Esta aparente contradicción podría explicarse por la precariedad del mercado laboral juvenil. Es plausible que muchos empleos ofrezcan bajos salarios y carezcan de seguros de salud robustos, generando una percepción de que los ingresos son insuficientes para costear un tratamiento. Por otro lado, jóvenes inactivos (como estudiantes) o desocupados podrían tener mayor conciencia de su cobertura a través de sistemas públicos como FONASA o de seguros familiares, lo que, a pesar de otras barreras, eleva su percepción de poder acceder a atenderse.
+
+Finalmente, el análisis de la relación directa entre malestar y acceso añade una capa más de complejidad, mostrando una correlación positiva: a mayor malestar, mayor es el acceso percibido. Esto sugiere que la propia necesidad de atención podría actuar como un motor para que los jóvenes tomen conciencia de las vías de acceso que, de otro modo, no habrían explorado.
+
+En resumen, este trabajo concluye que, si bien la falta de ocupación es un factor de vulnerabilidad para la salud mental, el mero hecho de tener un empleo no garantiza ni el bienestar ni el acceso a los medios para procurarlo. Las condiciones de la empleabilidad juvenil emergen como un factor crítico que merece un análisis más profundo, sugiriendo que las políticas públicas deben enfocarse no solo en la creación de puestos de trabajo, sino también en la calidad y la seguridad que estos ofrecen para asegurar un desarrollo integral de las juventudes.
+
+## Fuentes consultadas
+
+Instituto Nacional de la Juventud (INJUV). (2022). 10ma Encuesta Nacional de Juventudes. Santiago, Chile. <https://www.injuv.gob.cl/encuestanacionaldejuventud>.
+
+Fundación SOL. (2025). Escuela de Datos 2025. <https://aulavirtual.escuelasol.cl/escuela-de-datos>
