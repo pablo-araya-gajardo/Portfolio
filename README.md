@@ -1,4 +1,3 @@
-# portfolio
 <h1 align="center">Hi 👋, My name is Pablo Araya Gajardo</h1>
 <h3 align="center">Data Analyst & Sociologist | Transforming raw data into actionable insights for social and environmental impact. Proficient in R, SPSS, Power BI, and survey methodology. Expertise in data visualization, statistical analysis, and crafting clear, compelling reports.</h3>
 
