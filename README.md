@@ -8,7 +8,7 @@
 
 - 👯 I’m looking to collaborate on **social research or environmental data projects**
 
-- 👨‍💻 All of my projects are available at [https://github.com/pablo-araya-gajardo/portfolio](https://github.com/pablo-araya-gajardo/Portfolio)
+- 👨‍💻 All of my projects are available at [http://pablo-araya-gajardo.github.io/](http://pablo-araya-gajardo.github.io/)
 
 - 💬 Ask me about **R, SPSS, survey design, and data visualization**
 
