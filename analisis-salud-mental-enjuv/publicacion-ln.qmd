@@ -1,0 +1,189 @@
+---
+title: "Juventud, Empleo y Salud Mental"
+author: "Pablo Araya Gajardo"
+format:
+  beamer:
+    theme: "Boadilla"        # Un tema visual limpio. Otras opciones: Madrid, Boadilla, AnnArbor, Singapore.
+    colortheme: "dolphin"   # Un esquema de color. Otras opciones: default, whale, dolphin.
+    aspectratio: 169
+    lang: es
+---
+
+```{r setup}
+#| include: false
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(readxl)
+library(ggplot2)
+
+enjuv <- read_excel("data/ENJUV_10.xlsx")
+
+enjuv_procesada <- enjuv %>%
+  
+# Transformación numérica de variables de resultado para construir indices de malestar psicológico y de acceso a atención psicológica (consultas, tratamientos y exámenes)
+  
+      mutate(across(P102_1:P102_7, ~case_when(
+    . == "Para nada"                   ~ 1,
+    . == "Varios dias"                 ~ 2,
+    . == "Más de la mitad de los días" ~ 3,
+    . == "Casi todos los días"         ~ 4,
+    TRUE                               ~ NA_real_ 
+  )),
+  across(P105_1:P105_3, ~case_when(
+    . == "Nada posible" ~ 1,
+    . == "Poco posible" ~ 2,
+    . == "Algo posible" ~ 3,
+    . == "Muy posible"  ~ 4,
+    TRUE                ~ NA_real_ 
+  ))) %>%
+  
+# Creación de Índice de Malestar Psicológico y del Índice de Acceso a Atención Psicológica
+# El primer índice se crea sumando las puntuaciones de las 7 preguntas P102 y el segundo se crea sumando las de las 3 preguntas P105.
+# Un puntaje más alto en este índice significará un mayor malestar psicológico o mayor accesibilidad a atención psicológica.
+# El rango teórico del primer índice irá de 7 (1*7, "Para nada" en todo) a 28 (4*7, "Casi todos los días" en todo). El del segundo índice irá de 3 (1*3, "Nada posible" en todo) a 12 (4*3, "Muy posible" en todo)
+  
+  mutate(
+    indice_malestar = rowSums(select(., P102_1:P102_7), na.rm = TRUE),
+    indice_atencion = rowSums(select(., P105_1:P105_3), na.rm = TRUE),
+
+    # Creación de la variable "Situación Laboral"
+    situacion_laboral = if_else(
+      P36 == "1. Sí" | P37 == "1. Sí" | P38 == "1. Sí",
+      "Ocupado/a",
+      "Desocupado/a o Inactivo/a",
+      missing = "Desocupado/a o Inactivo/a"
+    )
+  ) %>%
+  mutate(situacion_laboral = as.factor(situacion_laboral))
+
+datos_analisis <- enjuv_procesada %>%
+  select(indice_malestar, indice_atencion, situacion_laboral)
+```
+
+## Objetivo: ¿Cómo se relaciona el empleo con la salud mental de los jóvenes?
+
+-   Análisis de la **10ma Encuesta Nacional de Juventudes (ENJUV)** de Chile.
+-   **Foco:** Malestar Psicológico y Acceso a Atención.
+-   **Software:** R, Quarto, Tidyverse.
+
+## Medición del Bienestar Psicológico
+
+::::: columns
+::: {.column width="45%"}
+**Índice de Malestar Psicológico**
+
+(*Mayor puntaje = Mayor malestar)*
+
+Mide la frecuencia de síntomas ansioso-depresivos a través de 7 preguntas:
+
+-   Ansiedad / Nerviosismo
+
+-   Preocupación incontrolable
+
+-   Desánimo / Depresión
+
+-   Falta de interés (Anhedonia)
+
+-   Problemas de sueño
+
+-   Soledad
+
+-   Ideación suicida
+:::
+
+::: {.column width="45%"}
+**Índice de Acceso a Atención**
+
+*(Mayor puntaje = Mayor acceso percibido)*
+
+Mide la percepción sobre la posibilidad de costear la atención a través de 3 preguntas:
+
+-   Costear psicólogo/psiquiatra
+
+-   Costear medicamentos
+
+-   Costear exámenes
+:::
+:::::
+
+------------------------------------------------------------------------
+
+## Hallazgo 1: Mayor Malestar en Jóvenes Desocupados
+
+```{r}
+#| label: grafico-malestar
+#| echo: false
+#| fig-cap: "Los jóvenes sin ocupación (rojo) muestran mayor densidad en los niveles altos de malestar."
+#| fig-width: 5
+#| fig-height: 2.5
+
+densidad_malestar <- ggplot(datos_analisis, aes(x = indice_malestar, fill = situacion_laboral)) +
+  geom_density(alpha = 0.6) +
+  labs(
+    title = "Distribución del Malestar Psicológico en Jóvenes",
+    subtitle = "Según Situación Laboral",
+    x = "Índice de Malestar Psicológico",
+    y = "Densidad",
+    fill = "Situación Laboral"
+  ) +
+  theme_minimal()
+
+print(densidad_malestar)
+
+ggsave("graficos/densidad_malestar.png", plot = densidad_malestar, bg = "white", width = 8, height = 5)
+```
+
+------------------------------------------------------------------------
+
+## Hallazgo 2: La Paradoja del Acceso a Atención
+
+```{r}
+#| label: grafico-acceso
+#| echo: false
+#| fig-cap: "El grupo sin ocupación (rojo) percibe un acceso significativamente mayor a la atención."
+#| fig-width: 5
+#| fig-height: 2.5
+
+boxplot_atencion <- ggplot(datos_analisis, aes(x = situacion_laboral, y = indice_atencion, fill = situacion_laboral)) +
+  geom_boxplot() +
+  labs(
+    title = "Percepción de Acceso a Atención Psicológica",
+    subtitle = "Según Situación Laboral",
+    x = "Situación Laboral",
+    y = "Índice de Acceso",
+    fill = "Situación Laboral"
+  ) +
+  theme_minimal()
+
+print(boxplot_atencion)
+
+ggsave("graficos/boxplot_atencion.png", plot = boxplot_atencion, bg = "white", width = 8, height = 5)
+
+```
+
+------------------------------------------------------------------------
+
+## Conclusión: El Empleo no lo es Todo
+
+-   Se confirma que la falta de ocupación es un factor de riesgo para el bienestar psicológico.
+
+-   Sin embargo, la precariedad del empleo juvenil emerge como una barrera crítica para el acceso a servicios de salud mental.
+
+-   La necesidad de políticas públicas que se enfoquen en la calidad del empleo es fundamental.
+
+------------------------------------------------------------------------
+
+## ¿Quieres saber más?
+
+      Explora el análisis completo y el código en mi portfolio de GitHub
+      (https://pablo-araya-gajardo.github.io/Portfolio/).
+
+      Revisa el informe publicado en Quarto Pub
+      (https://94810.quarto.pub/analisis_enjuv/).
+
+
+¡Gracias por leer!

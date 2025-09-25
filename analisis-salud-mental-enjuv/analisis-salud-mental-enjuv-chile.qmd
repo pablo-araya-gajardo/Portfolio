@@ -27,6 +27,7 @@ format:
     number-sections: true
     code-fold: true
     code-tools: true
+    css: styles.css
   pdf:
     documentclass: report
     papersize: a4
@@ -198,7 +199,7 @@ densidad_malestar <- ggplot(datos_analisis, aes(x = indice_malestar, fill = situ
   geom_density(alpha = 0.6) +
   labs(
     title = "Distribución del Malestar Psicológico en Jóvenes",
-    subtitle = "Según Situación Laborl (Ocupado/a vs. Desocupado/a o Inactivo/a)",
+    subtitle = "Según Situación Laboral (Ocupado/a vs. Desocupado/a o Inactivo/a)",
     x = "Índice de Malestar Psicológico",
     y = "Densidad",
     fill = "Situación Laboral"

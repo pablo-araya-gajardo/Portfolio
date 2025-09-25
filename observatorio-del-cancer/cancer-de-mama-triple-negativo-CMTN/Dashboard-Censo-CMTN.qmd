@@ -1,0 +1,445 @@
+---
+title: "Dashboard: Censo 'Yo Soy Triple'"
+subtitle: "Seguimiento de Estado de Salud y Tratamiento"
+author: "Pablo Araya Gajardo"
+format:
+  dashboard:
+    page-layout: a-nav-bar
+    theme: default
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(stringr)
+library(readxl)
+library(knitr)
+library(kableExtra)
+library(forcats)
+
+datos_pacientes <- read_excel("CMTN.xlsx", sheet = "datos_pacientes")
+
+datos_sintomas <- read_excel("CMTN.xlsx", sheet = "datos_sintomas")
+
+datos_tratamientos <- read_excel("CMTN.xlsx", sheet = "datos_tratamientos")
+
+colores_paleta <- list(
+  principal_azul = "#4682B4",
+  positivo_verde = "#20B2AA",
+  negativo_coral = "#F08080",
+  gradiente_azul = colorRampPalette(c("#AED6F1", "#4682B4"))(5),
+  gradiente_coral = colorRampPalette(c("#F08080", "#FEF2F2"))(4),
+  gradiente_verde = colorRampPalette(c("#B2DFDB", "#20B2AA"))(5)
+)
+
+```
+
+# Resumen {.page-fill}
+
+## Fila 1: KPIs
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("users", fill = "white")
+```
+**238**
+
+Pacientes en seguimiento
+:::
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("heart", fill = "white")
+```
+**33.2%**
+
+Reporta un estado de salud "Satisfactorio"
+:::
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("comment-dots", fill = "white")
+```
+**15.2%**
+
+Ha recibido inmunoterapia
+:::
+
+## Fila 2: Gráfico Principal
+
+```{r}
+#| title: "¿Cómo calificaría su actual estado de salud?"
+#| echo: false
+
+porcentaje_salud <- (sum(c(5, 61)) / sum(c(5, 61, 50, 79, 43))) * 100
+
+niveles_salud <- c("Muy limitado", "Con algunas dificultades", "Aceptable", "Satisfactorio", "Excelente")
+
+datos_pacientes %>%
+  mutate(estado_salud_ordenado = factor(estado_salud, levels = niveles_salud)) %>%
+  filter(!is.na(estado_salud_ordenado)) %>%
+
+  ggplot(aes(x = estado_salud_ordenado)) +
+  geom_bar(fill = colores_paleta$gradiente_azul, alpha = 0.9, width = 0.7) +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5, color = "black", size = 4) +
+  labs(
+    title = "Más del 25% de las Pacientes Reporta Dificultades de Salud",
+    subtitle = "El 27.7% califica su salud como 'Muy limitado' o 'Con algunas dificultades'.",
+    x = NULL,
+    y = "N° de Pacientes"
+    ) +
+
+scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+theme_minimal(base_size = 14) +
+
+theme(
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.y = element_blank(),
+  plot.title = element_text(face = "bold", size = 16),
+  plot.subtitle = element_text(size = 12),
+  axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+# Tratamiento {.page-fill}
+
+## Fila 1: Distribución por Sistema de Salud {height=55%}
+
+:::: {.columns}
+::: {.column width="65%"}
+
+```{r}
+#| title: "Centro Asistencial de Tratamiento"
+#| echo: false
+
+porcentaje_publico <- (103 / sum(c(103, 73, 42, 15, 5))) * 100
+
+datos_pacientes %>%
+  filter(!is.na(centro_asistencial)) %>%
+  filter(centro_asistencial != "NA") %>% 
+
+  ggplot(aes(x = fct_reorder(centro_asistencial, centro_asistencial, .fun = length, .desc = TRUE))) +
+  geom_bar(fill = colores_paleta$principal_azul, alpha = 0.8) +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5, color = "black", size = 4) +
+  scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 15)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+  labs(
+    subtitle = "El 43.3% de las pacientes se atiende en hospitales públicos.",
+    x = NULL,
+    y = "N° de Pacientes"
+  ) +
+theme_minimal(base_size = 14) +
+theme(
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.y = element_blank(),
+    axis.title.x = element_blank(),
+  plot.subtitle = element_text(face = "bold", size = 16)
+  )
+  
+```
+
+:::
+::: {.column width="60%"}
+
+```{r}
+#| title: "Condición Actual del Cáncer"
+#| echo: false
+
+niveles_condicion <- c("Metastásico", "En tratamiento", "En seguimiento", "En remisión")
+
+datos_pacientes %>%
+  filter(condicion_cancer %in% niveles_condicion) %>%
+  mutate(condicion_ordenada = factor(condicion_cancer,
+  levels = niveles_condicion)) %>%
+
+  ggplot(aes(x = condicion_ordenada, fill = condicion_ordenada)) +
+  geom_bar(fill = colores_paleta$gradiente_coral, alpha = 0.9, width = 0.7) +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5, color = "black", size = 4) +
+  
+  labs(
+    subtitle = "El 63.4% se encuentra en remisión o seguimiento",
+    x = NULL,
+    y = "N° de Pacientes"
+    ) +
+
+scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+theme_minimal(base_size = 14) +
+theme(
+  legend.position = "none",
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.y = element_blank(),
+  axis.text.x = element_text(size = 11),
+  plot.subtitle = element_text(face = "bold", size = 16)
+)
+```
+
+:::
+::::
+
+## Fila 2: Tipos de Tratamientos Recibidos (Pacientes Activas) {height=45%}
+
+```{r}
+#| title: ""
+#| echo: false
+
+library(DT)
+
+tabla_tratamientos_resumen <- datos_tratamientos %>%
+  filter(tratamiento_recibido != "Actualmente no sigo tratamiento") %>%
+  count(tratamiento_recibido, name = "N") %>%
+  mutate(Tratamiento = case_when(
+    tratamiento_recibido == "Cirugía (mastectomía total o parcial)" ~ "Cirugía (Mastectomía)",
+    tratamiento_recibido == "Inmunoterapia para el cáncer" ~ "Inmunoterapia",
+    TRUE ~ tratamiento_recibido
+  )) %>%
+  arrange(desc(N)) %>%
+  mutate(Porcentaje = N / sum(N)) %>%
+  select(Tratamiento, `N° de Pacientes` = N, Porcentaje)
+
+datatable(
+  tabla_tratamientos_resumen,
+  options = list(
+    pageLength = 8, 
+    autoWidth = TRUE, 
+    dom = 't', 
+    columnDefs = list(list(className = 'dt-center', targets = '_all'))
+  ),
+  rownames = FALSE,
+  class = 'cell-border stripe'
+) %>%
+  formatStyle(
+    'Porcentaje',
+    background = styleColorBar(range(tabla_tratamientos_resumen$Porcentaje), colores_paleta$principal_azul),
+    backgroundSize = '98% 88%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatPercentage('Porcentaje', digits = 1)
+```
+
+# Apoyo Psicosocial y Redes {.page-fill}
+
+```{r}
+#| include: false
+
+total_pacientes <- nrow(datos_pacientes)
+
+# KPI 1: Red de Apoyo
+pct_red_solida <- datos_pacientes %>%
+  filter(red_apoyo == 5) %>%
+  nrow() / total_pacientes
+
+# KPI 2: Apoyo Efectivo
+pct_apoyo_muy_efectivo <- datos_pacientes %>%
+  filter(efectividad_apoyo == 5) %>%
+  nrow() / sum(datos_pacientes$apoyo_ps == "Sí", na.rm = TRUE)
+
+# Gráfico 1: Recepción de Apoyo
+datos_apoyo <- datos_pacientes %>%
+  filter(!is.na(apoyo_ps)) %>%
+  count(apoyo_ps) %>%
+  mutate(Porcentaje = n / sum(n))
+pct_recibio_apoyo <- datos_apoyo$Porcentaje[datos_apoyo$apoyo_ps == "Sí"]
+```
+
+## Fila 1: Indicadores Clave {height=30%}
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("people-group", fill = "white")
+```
+**`r scales::percent(pct_red_solida, accuracy = 0.1)`**
+
+Reporta una red de apoyo "Muy Sólida"
+:::
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("thumbs-up", fill = "white")
+```
+**`r scales::percent(pct_apoyo_muy_efectivo, accuracy = 0.1)`**
+
+Considera el apoyo "Muy Efectivo"
+:::
+
+## Fila 2: Visualización del Acceso y Efectividad {height=70%}
+
+::::: columns
+::: {.column width="80%"}
+```{r}
+#| title: "Acceso a Apoyo Psicosocial"
+#| echo: false
+
+ggplot(datos_apoyo, aes(x = " ", y = Porcentaje, fill = apoyo_ps)) +
+  geom_col(width = 0.5) +
+  geom_text(
+    aes(label = scales::percent(Porcentaje, accuracy = 0.1)),
+    position = position_stack(vjust = 0.5),
+    color = "white", fontface = "bold", size = 6) +
+  scale_fill_manual(
+    values = c("Sí" = colores_paleta$positivo_verde, "No" = colores_paleta$negativo_coral),
+    labels = c("No (40.6%)", "Sí (59.1%)")
+  ) +
+  labs(
+    title = "Casi un 60% ha recibido apoyo",
+    subtitle = "Sin embargo, un preocupante 41% no ha accedido a este servicio.",
+    fill = "Recepción de Apoyo",
+    x = NULL, y = NULL
+  ) +
+  coord_flip() +
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    plot.subtitle = element_text(hjust = 0.5, size = 12)
+  )
+
+```
+:::
+
+::: {.column width="80%"}
+```{r}
+#| title: "Efectividad del Apoyo Recibido"
+#| echo: false
+
+niveles_efectividad <- c("1", "2", "3", "4", "5")
+etiquetas_efectividad <- c("1\nNada Efectivo", "2", "3", "4", "5\nMuy Efectivo")
+
+datos_pacientes %>%
+  filter(apoyo_ps == "Sí") %>%
+  mutate(efectividad_ordenada = factor(efectividad_apoyo, levels = niveles_efectividad)) %>%
+  filter(!is.na(efectividad_ordenada)) %>%
+  
+  ggplot(aes(x = efectividad_ordenada, fill = efectividad_ordenada)) +
+  geom_bar(alpha = 0.9) +
+  scale_fill_manual(values = colores_paleta$gradiente_verde) +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5, size = 4) +
+  scale_x_discrete(labels = etiquetas_efectividad) +
+  labs(
+    title = "El 40% lo califica como 'Muy Efectivo'.",
+    x = NULL,
+    y = "N° de Pacientes"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    plot.title = element_text(face = "bold", size = 16),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+
+```
+:::
+:::::
+
+# Perspectivas y Recomendaciones {.page-fill}
+
+## Fila 1: Visualizaciones Cuantitativas {height=70%}
+
+::::: columns
+
+::: {.column width="80%"}
+
+```{r grafico-optimismo}
+#| title: "Una Mirada Esperanzadora Hacia el Futuro"
+#| echo: false
+
+niveles_optimismo <- c(1, 2, 3, 4, 5)
+etiquetas_optimismo <- c("1\nNada Optimista", "2", "3", "4", "5\nMuy Optimista")
+
+datos_pacientes %>%
+  mutate(optimismo_ordenado = factor(optimismo_recuperacion, levels = niveles_optimismo)) %>%
+  filter(!is.na(optimismo_ordenado)) %>%
+  
+  ggplot(aes(x = optimismo_ordenado)) +
+  geom_bar(fill = colores_paleta$gradiente_azul, alpha = 0.8) +
+  geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5, size = 4) +
+  scale_x_discrete(labels = etiquetas_optimismo) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+  labs(
+    subtitle = "El 63.3% de las pacientes se siente 'Muy optimista' respecto a su recuperación.",
+    x = "Nivel de Optimismo",
+    y = "N° de Pacientes"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(panel.grid.major.x = element_blank())
+```
+
+:::
+
+::: {.column width="80%"}
+
+```{r}
+#| title: "Áreas Clave de Mejora Según las Pacientes"
+#| echo: false
+
+datos_pacientes %>%
+  filter(!is.na(recomendacion) & recomendacion != "") %>%
+  mutate(recomendacion_agrupada = fct_lump_n(f = as.factor(recomendacion), n = 7, other_level = "Otras recomendaciones")) %>%
+  count(recomendacion_agrupada, name = "N") %>%
+  filter(!is.na(recomendacion_agrupada)) %>%
+
+  ggplot(aes(x = fct_reorder(recomendacion_agrupada, N), y = N)) +
+  geom_col(fill = colores_paleta$principal_azul, alpha = 0.9, width = 0.8) +
+  geom_text(aes(label = N), hjust = 1.2, color = "white", fontface = "bold", size = 3.5) +
+  coord_flip() +
+  scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 40)) +
+  labs(
+    subtitle = "Acceso a terapias innovadoras es la principal\nrecomendación.",
+    x = NULL,
+    y = "N° de Menciones"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.y = element_text(size = 10)
+  )
+```
+:::
+
+::::
+
+## Fila 2: Voces de las Pacientes {height=30%}
+
+::: {style="background-color: #f8f9fa; border-radius: 5px; padding: 15px; height: 100%;"}
+### Testimonios Clave
+
+::: {.scrolling style="height: 85%;"}
+
+Voces de las Pacientes
+
+> "Debemos tener acceso a la inmunoterapia y a todos los tratamientos nuevos desde el día 1 (...)"
+
+---
+
+> "Que sea conocido, incluso de que se trata y porque se llama triple negativo. En la medida que se conozca la enfermedad uno tiende a estar más atenta."
+
+---
+
+> "Debería disminuir el tiempo de espera porque es un cáncer muy agresivo y de rápida propagación (...)"
+
+---
+
+> "Tratamiento integral con kinesiólogo, sicólogo y nutricionista."
+
+---
+
+> "Deberían mejorar los controles de seguimiento y la reconstrucción mamaria..."
+
+:::
+:::
