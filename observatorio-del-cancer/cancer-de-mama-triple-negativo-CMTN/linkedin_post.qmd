@@ -1,0 +1,80 @@
+---
+title: "Dando Voz a los Datos: Un Dashboard para el Cáncer de Mama Triple Negativo"
+author: "Pablo Araya Gajardo"
+date: "Octubre 2025"
+format:
+  beamer:
+    theme: "metropolis"
+    colortheme: "default"
+    aspectratio: 169
+    lang: es
+---
+
+```{r setup}
+#| include: false
+
+library(knitr)
+```
+
+# El Desafío: ¿Cómo Entender la Realidad de las Pacientes?
+
+:::::: columns
+::: {.column width="60%"}
+Un informe en PDF contiene datos valiosos, pero a menudo es estático y difícil de explorar.
+
+El seguimiento a 238 pacientes con Cáncer de Mama Triple Negativo reveló hallazgos cruciales sobre:
+
+-   La persistente carga de efectos secundarios.
+
+-   Las barreras de acceso a tratamientos innovadores.
+
+-   La significativa brecha en el apoyo psicosocial.
+
+**La pregunta es:** ¿Cómo podemos comunicar estos datos de una forma más dinámica e impactante?
+:::
+
+:::: {.column width="40%"}
+::: {style="text-align: center;"}
+![Screenshot de la página de Sintomatología del dashboard.](sintomatologia.png){width="100%"}
+:::
+::::
+::::::
+
+# La Solución: Un Dashboard Interactivo
+
+:::::: columns
+::: {.column width="50%"}
+Transformé los datos en un dashboard 100% reproducible con R y Quarto, creando una herramienta que permite:
+
+-   Explorar visualmente los resultados clave.
+
+-   Interactuar con los datos a través de tablas dinámicas.
+
+-   Comprender de un vistazo el estado de salud, los tratamientos y las recomendaciones de las pacientes.
+:::
+
+:::: {.column width="50%"}
+::: {style="text-align: center;"}
+![Screenshot de la página de Conclusiones del dashboard.](conclusiones.png){width="80%"}
+:::
+::::
+::::::
+
+# ¡Explora el Dashboard Completo!
+
+:::::: columns
+::: {.column width="50%"}
+
+He publicado el dashboard interactivo para que puedas explorar todos los hallazgos en detalle.
+
+Haz clic en el enlace para verlo en acción: <https://94810.quarto.pub/dashboard-censo-yo-soy-triple>
+
+El código y la metodología están disponibles en mi portfolio de GitHub. ¡Tu feedback es bienvenido!
+:::
+
+:::: {.column width="40%"}
+::: {style="text-align: center; padding-top: 15px;"}
+![Screenshot de la página principal del dashboard.](resumen.png){width="100%"}
+:::
+::::
+::::::
