@@ -21,7 +21,7 @@ Este repositorio contiene el código fuente para un dashboard interactivo que vi
 **Recomendaciones de las Pacientes para Mejorar Tratamientos**
 *Este gráfico de barras horizontales muestra las áreas de mejora más mencionadas por las propias pacientes, destacando el acceso a terapias y la información como las principales prioridades.*
 
-![Gráfico de Recomendaciones](figure-html/recomendaciones.png)
+![Gráfico de Recomendaciones](recomendaciones.png)
 
 ---
 
