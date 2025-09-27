@@ -22,6 +22,11 @@
 *   **Tecnologías:** R, Quarto, Tidyverse (dplyr, ggplot2).
 *   **Hallazgo Clave:** Se encontró una paradójica correlación donde jóvenes desocupados perciben un mayor acceso a la atención en salud mental que sus pares empleados, apuntando a la precariedad laboral como un factor crítico.
 
+### 2. Dashboard Interactivo: Seguimiento a Pacientes de Cáncer de Mama Triple Negativo
+*   **Descripción:** Creación de un dashboard interactivo para visualizar los resultados de una encuesta de seguimiento a pacientes del Censo "Yo Soy Triple". El dashboard explora el estado de salud, el tratamiento actual, el apoyo psicosocial y las perspectivas de las pacientes.
+*   **Tecnologías:** R, Quarto Dashboards, Tidyverse (dplyr, ggplot2), DT (Tablas Interactivas).
+*   **Enlace al Dashboard:** **[Ver el dashboard interactivo en Quarto Pub](https://94810.quarto.pub/dashboard-censo-yo-soy-triple/)**
+
 <h3 align="left">Connect with me:</h3>
 <p align="left">
 <a href="https://linkedin.com/in/pablo-araya-gajardo" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="pablo-araya-gajardo" height="30" width="40" /></a>
