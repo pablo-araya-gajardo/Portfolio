@@ -17,7 +17,7 @@
 
 ## 📂 Proyectos
 
-### 1. [Análisis de Salud Mental y Situación Laboral en Juventudes Chilenas](analisis-enjuv-chile/README.md)
+### 1. [Análisis de Salud Mental y Situación Laboral en Juventudes Chilenas](analisis-salud-mental-enjuv/README.md)
 *   **Descripción:** Análisis de la relación entre empleo y salud mental usando datos de la 10ma Encuesta Nacional de Juventudes (ENJUV).
 *   **Tecnologías:** R, Quarto, Tidyverse (dplyr, ggplot2).
 *   **Hallazgo Clave:** Se encontró una paradójica correlación donde jóvenes desocupados perciben un mayor acceso a la atención en salud mental que sus pares empleados, apuntando a la precariedad laboral como un factor crítico.
