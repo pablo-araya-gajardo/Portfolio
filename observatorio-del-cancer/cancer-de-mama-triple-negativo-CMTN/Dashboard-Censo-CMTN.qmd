@@ -34,6 +34,28 @@ colores_paleta <- list(
   gradiente_verde = colorRampPalette(c("#B2DFDB", "#20B2AA"))(5)
 )
 
+pacientes_con_sintomas <- datos_sintomas %>%
+  summarise(n_unicos = n_distinct(id_paciente)) %>%
+  pull(n_unicos)
+
+total_pacientes <- nrow(datos_pacientes)
+
+pct_con_sintomas <- pacientes_con_sintomas / total_pacientes
+
+pct_red_solida <- datos_pacientes %>%
+  filter(red_apoyo == 5) %>%
+  nrow() / total_pacientes
+
+pct_apoyo_muy_efectivo <- datos_pacientes %>%
+  filter(efectividad_apoyo == 5) %>%
+  nrow() / sum(datos_pacientes$apoyo_ps == "Sí", na.rm = TRUE)
+
+datos_apoyo <- datos_pacientes %>%
+  filter(!is.na(apoyo_ps)) %>%
+  count(apoyo_ps) %>%
+  mutate(Porcentaje = n / sum(n))
+pct_recibio_apoyo <- datos_apoyo$Porcentaje[datos_apoyo$apoyo_ps == "Sí"]
+
 ```
 
 # Resumen {.page-fill}
@@ -66,11 +88,11 @@ Reporta un estado de salud "Satisfactorio"
 ```{r}
 #| echo: false
 #| output: asis
-fontawesome::fa("comment-dots", fill = "white")
+fontawesome::fa("person-dots-from-line", fill = "white")
 ```
-**15.2%**
+**`r scales::percent(pct_con_sintomas, accuracy = 0.1)`**
 
-Ha recibido inmunoterapia
+Reportó al menos un efecto secundario
 :::
 
 ## Fila 2: Gráfico Principal
@@ -225,30 +247,58 @@ datatable(
   formatPercentage('Porcentaje', digits = 1)
 ```
 
-# Apoyo Psicosocial y Redes {.page-fill}
+# Sintomatología y Efectos Secundarios {.page-fill}
 
+## Fila 1: Indicadores Clave {height=20%}
+
+::: {.valuebox}
 ```{r}
-#| include: false
-
-total_pacientes <- nrow(datos_pacientes)
-
-# KPI 1: Red de Apoyo
-pct_red_solida <- datos_pacientes %>%
-  filter(red_apoyo == 5) %>%
-  nrow() / total_pacientes
-
-# KPI 2: Apoyo Efectivo
-pct_apoyo_muy_efectivo <- datos_pacientes %>%
-  filter(efectividad_apoyo == 5) %>%
-  nrow() / sum(datos_pacientes$apoyo_ps == "Sí", na.rm = TRUE)
-
-# Gráfico 1: Recepción de Apoyo
-datos_apoyo <- datos_pacientes %>%
-  filter(!is.na(apoyo_ps)) %>%
-  count(apoyo_ps) %>%
-  mutate(Porcentaje = n / sum(n))
-pct_recibio_apoyo <- datos_apoyo$Porcentaje[datos_apoyo$apoyo_ps == "Sí"]
+#| echo: false
+#| output: asis
+fontawesome::fa("person-dots-from-line", fill = "white")
 ```
+**`r scales::percent(pct_con_sintomas, accuracy = 0.1)`**
+reportó al menos un efecto secundario
+:::
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("brain", fill = "white")
+```
+
+**Memoria o Concentración**
+es el síntoma más reportado por las pacientes
+:::
+
+## Fila 2: Frecuencia de Síntomas Reportados {height=80%}
+
+```{r grafico-sintomas}
+#| title: "¿Ha experimentado síntomas o efectos secundarios significativos en los últimos tres meses?"
+#| echo: false
+
+datos_sintomas %>%
+  count(sintoma, name = "N") %>%
+  
+  ggplot(aes(x = fct_reorder(sintoma, N), y = N)) +
+  geom_col(fill = colores_paleta$principal_azul, alpha = 0.9) +
+  geom_text(aes(label = N), hjust = -0.2, color = "black", size = 3.5) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, .05))) +
+  labs(
+    subtitle = "Los cambios cognitivos, el dolor y la neuropatía son los más prevalentes.",
+    x = NULL,
+    y = "N° de Pacientes que Reportan el Síntoma"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+```
+
+# Apoyo Psicosocial y Redes {.page-fill}
 
 ## Fila 1: Indicadores Clave {height=30%}
 
@@ -290,7 +340,7 @@ ggplot(datos_apoyo, aes(x = " ", y = Porcentaje, fill = apoyo_ps)) +
     color = "white", fontface = "bold", size = 6) +
   scale_fill_manual(
     values = c("Sí" = colores_paleta$positivo_verde, "No" = colores_paleta$negativo_coral),
-    labels = c("No (40.6%)", "Sí (59.1%)")
+    labels = c("No (40.9%)", "Sí (59.1%)")
   ) +
   labs(
     title = "Casi un 60% ha recibido apoyo",
@@ -443,3 +493,71 @@ Voces de las Pacientes
 
 :::
 :::
+
+# Conclusiones {.page-fill}
+
+## Resumen de Desafíos Identificados {height="35%"}
+
+:::: {.columns}
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("person-running", fill = "white")
+```
+## Carga de Síntomas
+Alta prevalencia de efectos secundarios persiste post-tratamiento.
+:::
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("hand-holding-dollar", fill = "white")
+```
+## Barreras de Acceso
+Acceso limitado a terapias innovadoras como la inmunoterapia (15.2%).
+:::
+
+::: {.valuebox}
+```{r}
+#| echo: false
+#| output: asis
+fontawesome::fa("comments", fill = "white")
+```
+## Brecha Psicosocial
+Un 40.9% no recibe apoyo y solo el 40.7% lo considera "muy efectivo".
+:::
+
+::::
+
+## Fila 2: Plan de Acción y Visión a Futuro {height="65%"}
+
+:::: {.columns}
+
+::: {.column width="100%"}
+### **Recomendaciones para Mejorar la Atención** {style="color: #005A9C;"}
+
+*   **Implementar Políticas de Equidad:** Promover activamente el acceso a terapias avanzadas, reduciendo las barreras económicas y las listas de espera.
+
+*   **Fortalecer el Apoyo Emocional:** Ampliar la cobertura de los programas de apoyo psicosocial, integrándolos desde el diagnóstico.
+
+*   **Mejorar la Comunicación y Educación:** Potenciar los canales de información para que las pacientes comprendan mejor su enfermedad y el manejo de efectos secundarios.
+
+*   **Adoptar un Enfoque Integral:** Combinar tratamientos efectivos con apoyo psicológico de calidad y una atención centrada en las necesidades de las pacientes.
+:::
+
+::: {.column width="100%"}
+### **Líneas de Investigación Futuras** {style="color: #005A9C;"}
+
+::: {style="background-color: #f8f9fa; border-radius: 5px; padding: 15px; height: 100%;"}
+Este estudio abre nuevas preguntas sobre:
+
+*   La efectividad de las **intervenciones psicosociales**.
+*   El impacto real de las **barreras de acceso** en los resultados clínicos.
+*   Estrategias para optimizar los **tiempos de espera** en el sistema de salud.
+:::
+:::
+
+::::
