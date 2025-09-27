@@ -17,10 +17,15 @@
 
 ## 📂 Proyectos
 
-### 1. [Análisis de Salud Mental y Situación Laboral en Juventudes Chilenas](analisis-enjuv-chile/README.md)
+### 1. [Análisis de Salud Mental y Situación Laboral en Juventudes Chilenas](analisis-salud-mental-enjuv/README.md)
 *   **Descripción:** Análisis de la relación entre empleo y salud mental usando datos de la 10ma Encuesta Nacional de Juventudes (ENJUV).
 *   **Tecnologías:** R, Quarto, Tidyverse (dplyr, ggplot2).
 *   **Hallazgo Clave:** Se encontró una paradójica correlación donde jóvenes desocupados perciben un mayor acceso a la atención en salud mental que sus pares empleados, apuntando a la precariedad laboral como un factor crítico.
+
+### 2. Dashboard Interactivo: Seguimiento a Pacientes de Cáncer de Mama Triple Negativo
+*   **Descripción:** Creación de un dashboard interactivo para visualizar los resultados de una encuesta de seguimiento a pacientes del Censo "Yo Soy Triple". El dashboard explora el estado de salud, el tratamiento actual, el apoyo psicosocial y las perspectivas de las pacientes.
+*   **Tecnologías:** R, Quarto Dashboards, Tidyverse (dplyr, ggplot2), DT (Tablas Interactivas).
+*   **Enlace al Dashboard:** **[Ver el dashboard interactivo en Quarto Pub](https://94810.quarto.pub/dashboard-censo-yo-soy-triple/)**
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
