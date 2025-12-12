@@ -3,7 +3,7 @@
 [![R](https://img.shields.io/badge/Code-R-276DC3?style=for-the-badge&logo=r)](https://www.r-project.org/)
 [![Quarto](https://img.shields.io/badge/Report-Quarto-blue?style=for-the-badge&logo=quarto)](https://quarto.org/)
 
-> **Ver el informe final publicado:** [Ver informe](https://94810.quarto.pub/analisis_enjuv/)
+> **Ver el informe final publicado:** [Ver informe](https://94810.quarto.pub/analisis_salud_mental_10ma_enjuv/)
 
 Este repositorio contiene el análisis completo para el trabajo final de la **Escuela de Datos 2025 de la Fundación SOL**. El objetivo es explorar la relación entre la situación laboral (ocupado/a vs. desocupado/a o inactivo/a) y dos dimensiones de la salud mental en jóvenes de Chile: el malestar psicológico y el acceso percibido a la atención.
 
